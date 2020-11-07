@@ -39,3 +39,8 @@ jobs:
       run: go test -v ./...
     - name: Build
       run: go build -v .
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: bill_service
+        path: ./bill_backend
