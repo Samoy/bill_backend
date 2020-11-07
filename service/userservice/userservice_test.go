@@ -40,8 +40,8 @@ func TestRegister(t *testing.T) {
 			name: "Register Service",
 			args: args{
 				u: &models.User{
-					Username:  "testuser",
-					Password:  "testpassword",
+					Username:  "testservice",
+					Password:  "testservice",
 					Telephone: "18212345678",
 					Nickname:  "TestUser",
 				},
@@ -71,12 +71,12 @@ func TestLogin(t *testing.T) {
 		{
 			"Login Service",
 			args{
-				"testuser",
-				"testpassword",
+				"testservice",
+				"testservice",
 			},
 			models.User{
-				Username:  "testuser",
-				Password:  "testpassword",
+				Username:  "testservice",
+				Password:  "testservice",
 				Telephone: "18212345678",
 				Nickname:  "TestUser",
 			},
@@ -108,8 +108,8 @@ func Test_existUser(t *testing.T) {
 		{
 			"Exist User Function",
 			args{
-				"testtest",
-				"testtest",
+				"exitusertest",
+				"13112345678",
 			},
 			false,
 		},

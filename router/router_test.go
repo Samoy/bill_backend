@@ -55,8 +55,8 @@ func TestInitRouter(t *testing.T) {
 			assert.Equal(t, http.StatusOK, code)
 			// 测试注册
 			code, data = testApi(tt.args.mode, "/api/v1/user/register", http.MethodPost, &v1.RegisterBody{
-				Username:  "testtest",
-				Password:  "testtest",
+				Username:  "testrouter",
+				Password:  "testrouter",
 				Telephone: "13712345678",
 				Nickname:  "Testtest",
 			})
@@ -64,8 +64,8 @@ func TestInitRouter(t *testing.T) {
 			assert.NotNil(t, *data, "Register test not pass")
 			//测试登录
 			code, _ = testApi(tt.args.mode, "/api/v1/user/login", http.MethodPost, v1.LoginBody{
-				Username: "testtest",
-				Password: "testtest",
+				Username: "testrouter",
+				Password: "testrouter",
 			})
 			assert.Equal(t, http.StatusOK, code)
 			assert.NotNil(t, *data, "Login test not pass")
