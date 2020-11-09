@@ -4,6 +4,7 @@ import (
 	"github.com/Samoy/bill_backend/models"
 	"github.com/Samoy/bill_backend/router/api"
 	"github.com/Samoy/bill_backend/service/userservice"
+	"github.com/Samoy/bill_backend/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,11 +22,20 @@ func Login(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	if _, err := userservice.Login(l.Username, l.Password); err != nil {
+	user, err := userservice.Login(l.Username, l.Password)
+	if err != nil {
 		api.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	api.Success(c, "登录成功", nil)
+	token, err := utils.GenerateToken(l.Username, l.Password)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	api.Success(c, "登录成功", map[string]interface{}{
+		"user":  user,
+		"token": token,
+	})
 }
 
 // RegisterBody 注册实体

@@ -37,6 +37,11 @@ func Login(username, password string) (user models.User, err error) {
 	return
 }
 
+func GetUser(userID uint) (user models.User, err error) {
+	err = dao.DB.First(&user, userID).Error
+	return
+}
+
 func existUser(username, telephone string) (err error) {
 	var user models.User
 	dao.DB.Where("username = ?", username).First(&user)

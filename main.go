@@ -6,6 +6,7 @@ import (
 	"github.com/Samoy/bill_backend/config"
 	"github.com/Samoy/bill_backend/dao"
 	"github.com/Samoy/bill_backend/router"
+	"github.com/Samoy/bill_backend/utils"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,7 @@ import (
 
 func init() {
 	config.Setup("./app.ini")
+	utils.SetupJwt(config.AppConf.JwtSecret)
 	dao.Setup(config.DatabaseConf.Type,
 		config.DatabaseConf.User,
 		config.DatabaseConf.Password,
