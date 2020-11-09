@@ -1,4 +1,4 @@
-name: Go CI
+name: Bill Backend CI
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-    
+
     - name: Setup Database
       uses: mirromutth/mysql-action@v1.1
       with:
@@ -37,8 +37,20 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Codecov
+      run: |
+        go get -u github.com/axw/gocov/gocov
+        go get -u github.com/AlekSi/gocov-xml
+        go test -v ./... -coverprofile=cover.out
+        gocov convert cover.out | gocov-xml > coverage.xml
+      uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
+
     - name: Build
       run: go build -v .
+
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
