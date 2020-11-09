@@ -161,7 +161,6 @@ func TestDeleteBillType(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
 			"Delete Bill Type",
 			args{
