@@ -10,26 +10,26 @@ func AddBillType(billType *models.BillType) error {
 	return dao.DB.Create(&billType).Error
 }
 
-func UpdateBillType(billID uint, billType *models.BillType) error {
-	return dao.DB.Model(&billType).Where("id = ?", billID).Updates(models.BillType{
+func UpdateBillType(billTypeID uint, billType *models.BillType) error {
+	return dao.DB.Model(&billType).Where("id = ?", billTypeID).Updates(models.BillType{
 		Name:  billType.Name,
 		Image: billType.Image,
 	}).Error
 }
 
-func GetBillType(billID uint) (models.BillType, error) {
+func GetBillType(billTypeID uint) (models.BillType, error) {
 	var billType models.BillType
-	err := dao.DB.First(&billType, billID).Error
+	err := dao.DB.First(&billType, billTypeID).Error
 	return billType, err
 }
 
-func DeleteBillType(billID uint, ownerID uint) error {
+func DeleteBillType(billTypeID uint, ownerID uint) error {
 	var billType models.BillType
-	dao.DB.Where("billID = ? and owner = ?", billID, ownerID).First(&billType)
+	dao.DB.Where("id = ? and owner = ?", billTypeID, ownerID).First(&billType)
 	if billType.ID < 0 {
 		return errors.New("未找到该账单类型")
 	}
-	if dao.DB.Delete(&billType, billID).Error != nil {
+	if dao.DB.Delete(&billType, billTypeID).Error != nil {
 		return errors.New("账单类型删除失败")
 	}
 	return nil
