@@ -36,15 +36,14 @@ jobs:
         fi
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./... -coverprofile=coverage.out
 
     - name: Test Report
       run: |
         go get -u github.com/axw/gocov/gocov
         go get -u github.com/AlekSi/gocov-xml
-        go test -v ./... -coverprofile=cover.out
-        gocov convert cover.out | gocov-xml > coverage.xml
-        
+        gocov convert coverage.out | gocov-xml > coverage.xml
+
     - name: Codecov
       uses: codecov/codecov-action@v1
       with:
