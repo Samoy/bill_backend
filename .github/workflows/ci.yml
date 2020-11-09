@@ -38,15 +38,17 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Codecov
+    - name: Test Report
       run: |
         go get -u github.com/axw/gocov/gocov
         go get -u github.com/AlekSi/gocov-xml
         go test -v ./... -coverprofile=cover.out
         gocov convert cover.out | gocov-xml > coverage.xml
+        
+    - name: Codecov
       uses: codecov/codecov-action@v1
-        with:
-          file: ./coverage.xml
+      with:
+        file: ./coverage.xml
 
     - name: Build
       run: go build -v .
