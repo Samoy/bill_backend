@@ -104,10 +104,10 @@ func TestUpdateBillType(t *testing.T) {
 		{
 			"Update Bill Type",
 			args{
-				1,
+				billTypeID,
 				&models.BillType{
-					Name:  "after_update_test",
-					Image: "/after_update_test_path",
+					Name:  "After update Bill Type",
+					Image: "/after_update_bill_type_path",
 				},
 			},
 			false,
