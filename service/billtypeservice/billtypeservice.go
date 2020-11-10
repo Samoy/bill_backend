@@ -10,8 +10,8 @@ func AddBillType(billType *models.BillType) error {
 	return dao.DB.Create(&billType).Error
 }
 
-func UpdateBillType(billTypeID uint, billType *models.BillType) error {
-	return dao.DB.Model(&billType).Where("id = ?", billTypeID).Updates(models.BillType{
+func UpdateBillType(billTypeID, owner uint, billType *models.BillType) error {
+	return dao.DB.Model(&billType).Where("id = ? and owner = ?", billTypeID, owner).Updates(models.BillType{
 		Name:  billType.Name,
 		Image: billType.Image,
 	}).Error
@@ -37,6 +37,6 @@ func DeleteBillType(billTypeID uint, ownerID uint) error {
 
 func GetBillTypeList(ownerID uint) ([]models.BillType, error) {
 	var billTypeList []models.BillType
-	err := dao.DB.Where("owner = ? or owner = ''", ownerID).Find(&billTypeList).Error
+	err := dao.DB.Where("owner = ? or owner is null", ownerID).Find(&billTypeList).Error
 	return billTypeList, err
 }

@@ -10,6 +10,7 @@ type Bill struct {
 	BillTypeID uint            `json:"bill_type_id" gorm:"not null"`       //账单类型ID，外键
 	Type       BillType        `json:"-" gorm:"foreignKey:BillTypeID"`     //账单类型
 	Remark     string          `json:"remark"`                             //账单备注
-	UserID     string          `json:"user_id" gorm:"not null"`            //用户ID
+	UserID     uint            `json:"user_id" gorm:"not null"`            //用户ID
 	Owner      User            `json:"-" gorm:"foreignKey:UserID"`         //用户
+	Income     bool            `json:"income" gorm:"not null"`             //是否是收入项目
 }

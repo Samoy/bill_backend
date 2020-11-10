@@ -95,6 +95,35 @@ func TestLogin(t *testing.T) {
 	}
 }
 
+func TestGetUser(t *testing.T) {
+	type args struct {
+		username string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			"Get User",
+			args{
+				username: "testservice",
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotUser, err := GetUser(tt.args.username)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			assert.NotNil(t, gotUser, "GetUser() test not pass")
+		})
+	}
+}
+
 func Test_existUser(t *testing.T) {
 	type args struct {
 		username  string

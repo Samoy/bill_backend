@@ -27,7 +27,8 @@ func Setup(dbType, dbUser, dbPassword, dbHost, dbName, dbTablePrefix string) {
 	DB.DB().SetMaxIdleConns(10)
 	DB.DB().SetMaxOpenConns(100)
 	DB.AutoMigrate(&models.BillType{}, &models.Bill{
-		Type: models.BillType{},
+		Type:  models.BillType{},
+		Owner: models.User{},
 	}, &models.User{})
 }
 

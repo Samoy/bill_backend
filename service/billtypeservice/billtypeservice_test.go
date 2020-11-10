@@ -115,7 +115,7 @@ func TestUpdateBillType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := UpdateBillType(tt.args.billTypeID, tt.args.billType); (err != nil) != tt.wantErr {
+			if err := UpdateBillType(tt.args.billTypeID, ownerID, tt.args.billType); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateBillType() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

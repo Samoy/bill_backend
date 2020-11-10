@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"github.com/Samoy/bill_backend/middleware/jwt"
 	"github.com/Samoy/bill_backend/models"
 	"github.com/Samoy/bill_backend/router/api"
 	"github.com/Samoy/bill_backend/service/billtypeservice"
@@ -20,25 +21,20 @@ import (
 var imageSavePath = "upload/images/"
 
 func AddBillType(c *gin.Context) {
-	userID := c.Request.FormValue("user_id")
-	if len(userID) == 0 {
-		api.Fail(c, http.StatusBadRequest, "user_id不能为空")
-		return
-	}
-	_, err := userservice.GetUser(uint(com.StrTo(userID).MustUint8()))
-	if err != nil {
-		api.Fail(c, http.StatusBadRequest, "未找到该用户")
-		return
-	}
+	user, err := userservice.GetUser(jwt.Username)
 	billTypeName := c.Request.FormValue("name")
 	if len(billTypeName) == 0 {
 		api.Fail(c, http.StatusBadRequest, "账单类型名称不能为空")
 		return
 	}
+	if err != nil {
+		api.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
 	handleImageForm(c, func(imagePath string) {
 		billType := models.BillType{
 			Name:  billTypeName,
-			Owner: uint(com.StrTo(userID).MustUint8()),
+			Owner: user.ID,
 			Image: imageSavePath,
 		}
 		err := billtypeservice.AddBillType(&billType)
@@ -65,14 +61,9 @@ func GetBillType(c *gin.Context) {
 }
 
 func UpdateBillType(c *gin.Context) {
-	userID := c.Request.FormValue("user_id")
-	if len(userID) == 0 {
-		api.Fail(c, http.StatusBadRequest, "user_id不能为空")
-		return
-	}
-	_, err := userservice.GetUser(uint(com.StrTo(userID).MustUint8()))
+	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, "未找到该用户")
+		api.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	BillTypeID := c.Request.FormValue("bill_type_id")
@@ -91,10 +82,10 @@ func UpdateBillType(c *gin.Context) {
 	handleImageForm(c, func(imagePath string) {
 		billType := models.BillType{
 			Name:  billTypeName,
-			Owner: uint(com.StrTo(userID).MustUint8()),
+			Owner: user.ID,
 			Image: imageSavePath,
 		}
-		err := billtypeservice.UpdateBillType(uint(com.StrTo(BillTypeID).MustUint8()), &billType)
+		err := billtypeservice.UpdateBillType(uint(com.StrTo(BillTypeID).MustUint8()), user.ID, &billType)
 		if err != nil {
 			api.Fail(c, http.StatusInternalServerError, "账单类型修改失败")
 		} else {
@@ -104,12 +95,12 @@ func UpdateBillType(c *gin.Context) {
 }
 
 func GetBillTypeList(c *gin.Context) {
-	userID := c.Query("user_id")
-	if len(userID) == 0 {
-		api.Fail(c, http.StatusBadRequest, "user_id不能为空")
+	user, err := userservice.GetUser(jwt.Username)
+	if err != nil {
+		api.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	billTypeList, err := billtypeservice.GetBillTypeList(uint(com.StrTo(userID).MustUint8()))
+	billTypeList, err := billtypeservice.GetBillTypeList(user.ID)
 	if err != nil {
 		api.Fail(c, http.StatusInternalServerError, "获取账单类型列表失败")
 		return
@@ -120,7 +111,6 @@ func GetBillTypeList(c *gin.Context) {
 
 type DeleteBillTypeForm struct {
 	BillTypeID uint `json:"bill_type_id" binding:"required"`
-	UserID     uint `json:"user_id" binding:"required"`
 }
 
 func DeleteBillType(c *gin.Context) {
@@ -129,7 +119,12 @@ func DeleteBillType(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err := billtypeservice.DeleteBillType(deleteBillTypeForm.BillTypeID, deleteBillTypeForm.UserID)
+	user, err := userservice.GetUser(jwt.Username)
+	if err != nil {
+		api.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	err = billtypeservice.DeleteBillType(deleteBillTypeForm.BillTypeID, user.ID)
 	if err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return

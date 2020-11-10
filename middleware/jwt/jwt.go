@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var Username string
+
 func Jwt() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var message string
@@ -23,6 +25,9 @@ func Jwt() gin.HandlerFunc {
 			})
 			context.Abort()
 			return
+		}
+		if claims != nil {
+			Username = claims.Username
 		}
 		context.Next()
 	}
