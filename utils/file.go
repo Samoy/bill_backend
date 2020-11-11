@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"mime/multipart"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -82,4 +84,18 @@ func CheckImageExt(fileName string, allExt ...string) bool {
 	}
 
 	return false
+}
+
+func GetProjectRoot() string {
+	var (
+		rootPath string
+		err      error
+	)
+	defer func() {
+		if err != nil {
+			panic(fmt.Sprintf("GetProjectRoot error :%+v", err))
+		}
+	}()
+	rootPath, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	return rootPath
 }

@@ -11,5 +11,6 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/unknwon/com v1.0.1
+	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
 	gopkg.in/ini.v1 v1.62.0
 )

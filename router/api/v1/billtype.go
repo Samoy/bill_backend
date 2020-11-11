@@ -10,15 +10,17 @@ import (
 	"github.com/Samoy/bill_backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
+	_ "golang.org/x/image/bmp"
 	"image"
 	_ "image/jpeg"
+	_ "image/png"
 	"net/http"
 	"os"
 	"path"
 	"time"
 )
 
-var imageSavePath = "upload/images/"
+var imageSavePath = utils.GetProjectRoot() + "/upload/images/"
 
 func AddBillType(c *gin.Context) {
 	user, err := userservice.GetUser(jwt.Username)
@@ -83,7 +85,7 @@ func UpdateBillType(c *gin.Context) {
 		billType := models.BillType{
 			Name:  billTypeName,
 			Owner: user.ID,
-			Image: imageSavePath,
+			Image: imagePath,
 		}
 		err := billtypeservice.UpdateBillType(uint(com.StrTo(BillTypeID).MustUint8()), user.ID, &billType)
 		if err != nil {
@@ -142,8 +144,13 @@ func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
 		api.Fail(c, http.StatusBadRequest, "图片大小不能超过100k")
 		return
 	}
-	if !utils.CheckImageExt(img.Filename, ".png,.bmp,.jpg,.jpeg") {
+	if !utils.CheckImageExt(img.Filename, ".png", ".jpg", ".bmp", ".jpeg") {
 		api.Fail(c, http.StatusBadRequest, "图片格式只能为png,bmp,jpg和jpeg")
+		return
+	}
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, "图片上传失败")
 		return
 	}
 	im, _, err := image.DecodeConfig(file)
@@ -176,10 +183,8 @@ func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
 		if err := c.SaveUploadedFile(img, filePath); err != nil {
 			api.Fail(c, http.StatusBadRequest, "图片上传失败")
 			return
-		} else {
-			//处理上传成功
-			successHandle(filePath)
 		}
+		successHandle(filePath)
 		_ = os.Remove(tempPath)
 	} else {
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")

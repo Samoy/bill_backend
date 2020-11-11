@@ -20,7 +20,7 @@ func GetBill(billID uint, userID uint) (models.Bill, error) {
 }
 
 func UpdateBill(billID, userID uint, bill *models.Bill) error {
-	return dao.DB.Model(&models.Bill{}).Where("id = ? and user_id = ?", billID, userID).Updates(&bill).Error
+	return dao.DB.Model(&bill).Where("id = ? and user_id = ?", billID, userID).Updates(&bill).Error
 }
 
 func GetBillList(

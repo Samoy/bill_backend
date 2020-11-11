@@ -22,7 +22,7 @@ type BillBody struct {
 
 func AddBill(c *gin.Context) {
 	b := &BillBody{}
-	if err := c.ShouldBindJSON(b); err != nil {
+	if err := c.ShouldBindJSON(&b); err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -31,7 +31,7 @@ func AddBill(c *gin.Context) {
 		api.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	l := models.Bill{
+	l := &models.Bill{
 		Name:       b.Name,
 		Amount:     b.Amount,
 		Remark:     b.Remark,
@@ -39,7 +39,7 @@ func AddBill(c *gin.Context) {
 		BillTypeID: b.TypeID,
 		Income:     b.Income,
 	}
-	err = billservice.AddBill(&l)
+	err = billservice.AddBill(l)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
@@ -74,7 +74,8 @@ type UpdateBillBody struct {
 
 func UpdateBill(c *gin.Context) {
 	ubb := &UpdateBillBody{}
-	if err := c.ShouldBindJSON(ubb); err != nil {
+	err := c.ShouldBindJSON(&ubb)
+	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -83,14 +84,14 @@ func UpdateBill(c *gin.Context) {
 		api.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	bill := models.Bill{
+	bill := &models.Bill{
 		Name:       ubb.Name,
 		Amount:     ubb.Amount,
 		Remark:     ubb.Remark,
 		BillTypeID: ubb.TypeID,
 		Income:     ubb.Income,
 	}
-	err = billservice.UpdateBill(ubb.BillID, user.ID, &bill)
+	err = billservice.UpdateBill(ubb.BillID, user.ID, bill)
 	if err != nil {
 		api.Fail(c, http.StatusInternalServerError, "更新账单失败")
 	} else {
@@ -110,7 +111,7 @@ func GetBillList(c *gin.Context) {
 	// 收入还是支出
 	income := c.DefaultQuery("income", "0")
 	// 排序(金额，时间远近)
-	sortKey := c.Query("sortKey")
+	sortKey := c.Query("sort_key")
 	asc := c.DefaultQuery("asc", "0")
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
