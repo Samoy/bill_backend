@@ -53,9 +53,9 @@ type RegisterBody struct {
 // Register 注册
 func Register(c *gin.Context) {
 	r := &RegisterBody{}
-	if err := c.ShouldBind(r); err != nil {
+	if err := c.ShouldBindJSON(r); err != nil {
 		logrus.Error(err.Error())
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		api.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	u := models.User{
@@ -65,7 +65,8 @@ func Register(c *gin.Context) {
 		Nickname:  r.Nickname,
 	}
 	if err := userservice.Register(&u); err != nil {
-		api.Fail(c, http.StatusInternalServerError, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusInternalServerError, "注册失败")
 		return
 	}
 	api.Success(c, "注册成功", u)

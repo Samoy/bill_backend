@@ -139,13 +139,11 @@ func TestInitRouter(t *testing.T) {
 			//测试更新账单
 			code, data = testNormalApi(tt.args.mode, "/api/v1/bill", http.MethodPut, v1.UpdateBillBody{
 				BillID: billID,
-				BillBody: v1.BillBody{
-					Name:   "Test Update Bill Router",
-					Amount: decimal.NewFromFloat(2.00),
-					Income: false,
-					TypeID: billTypeID,
-					Remark: "This is a  update bill router test",
-				},
+				Name:   "Test Update Bill Router",
+				Amount: decimal.NewFromFloat(2.00),
+				Income: "0",
+				TypeID: billTypeID,
+				Remark: "This is a  update bill router test",
 			})
 			assert.Equal(t, http.StatusOK, code, "Update bill test not pass")
 			assert.NotEmpty(t, *data, "Update bill test not pass")
