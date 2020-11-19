@@ -94,7 +94,7 @@ func TestGetBillType(t *testing.T) {
 func TestUpdateBillType(t *testing.T) {
 	type args struct {
 		billTypeID uint
-		billType   *models.BillType
+		data       map[string]interface{}
 	}
 	tests := []struct {
 		name    string
@@ -105,9 +105,10 @@ func TestUpdateBillType(t *testing.T) {
 			"Update Bill Type",
 			args{
 				billTypeID,
-				&models.BillType{
-					Name:  "After update Bill Type",
-					Image: "/after_update_bill_type_path",
+				map[string]interface{}{
+					"name":  "After update Bill Type",
+					"owner": ownerID,
+					"image": "/after_update_bill_type_path",
 				},
 			},
 			false,
@@ -115,8 +116,9 @@ func TestUpdateBillType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := UpdateBillType(tt.args.billTypeID, ownerID, tt.args.billType); (err != nil) != tt.wantErr {
+			if billType, err := UpdateBillType(tt.args.billTypeID, ownerID, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateBillType() error = %v, wantErr %v", err, tt.wantErr)
+				assert.NotEmpty(t, billType, "Update bill type service not pass")
 			}
 		})
 	}

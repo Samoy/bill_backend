@@ -12,7 +12,7 @@ import (
 // telephone 手机号
 // nickname 昵称
 func Register(u *models.User) (err error) {
-	err = existUser(u.Username, u.Password)
+	err = existUser(u.Username, u.Telephone)
 	if err == nil {
 		err = dao.DB.Create(&u).Error
 		if err != nil {
@@ -26,14 +26,7 @@ func Register(u *models.User) (err error) {
 // username  用户名
 // password 密码
 func Login(username, password string) (user models.User, err error) {
-	dao.DB.Where("username = ?", username).First(&user)
-	if user.ID < 0 {
-		err = errors.New("该用户不存在")
-	}
-	dao.DB.Where("username = ? and password = ?", username, password).First(&user)
-	if user.ID < 0 {
-		err = errors.New("用户名和密码不匹配")
-	}
+	err = dao.DB.Where("username = ? and password = ?", username, password).First(&user).Error
 	return
 }
 
@@ -48,6 +41,7 @@ func existUser(username, telephone string) (err error) {
 	dao.DB.Where("username = ?", username).First(&user)
 	if user.ID > 0 {
 		err = errors.New("该用户名已被注册")
+		return
 	}
 	dao.DB.Where("telephone = ?", telephone).First(&user)
 	if user.ID > 0 {

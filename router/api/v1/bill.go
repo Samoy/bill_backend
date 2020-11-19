@@ -8,8 +8,10 @@ import (
 	"github.com/Samoy/bill_backend/service/userservice"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 	"github.com/unknwon/com"
 	"net/http"
+	"strconv"
 )
 
 type BillBody struct {
@@ -23,12 +25,14 @@ type BillBody struct {
 func AddBill(c *gin.Context) {
 	b := &BillBody{}
 	if err := c.ShouldBindJSON(&b); err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
 	l := &models.Bill{
@@ -41,7 +45,8 @@ func AddBill(c *gin.Context) {
 	}
 	err = billservice.AddBill(l)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "添加账单失败")
 		return
 	} else {
 		api.Success(c, "添加账单成功", l)
@@ -56,11 +61,13 @@ func GetBill(c *gin.Context) {
 	}
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
 	bill, err := billservice.GetBill(uint(com.StrTo(billID).MustUint8()), user.ID)
 	if err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusInternalServerError, "获取账单失败")
 		return
 	}
@@ -68,31 +75,49 @@ func GetBill(c *gin.Context) {
 }
 
 type UpdateBillBody struct {
-	BillID uint `json:"bill_id" binding:"required"`
-	BillBody
+	BillID uint            `json:"bill_id" binding:"required"`
+	Name   string          `json:"name"`
+	Amount decimal.Decimal `json:"amount" binding:"omitempty,gt>0"`
+	Remark string          `json:"remark" binding:"omitempty,max=100"`
+	TypeID uint            `json:"type_id"`
+	Income string          `json:"income"`
 }
 
 func UpdateBill(c *gin.Context) {
 	ubb := &UpdateBillBody{}
 	err := c.ShouldBindJSON(&ubb)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
-	bill := &models.Bill{
-		Name:       ubb.Name,
-		Amount:     ubb.Amount,
-		Remark:     ubb.Remark,
-		BillTypeID: ubb.TypeID,
-		Income:     ubb.Income,
+	billData := make(map[string]interface{})
+	if ubb.Name != "" {
+		billData["name"] = ubb.Name
 	}
-	err = billservice.UpdateBill(ubb.BillID, user.ID, bill)
+	if !ubb.Amount.IsZero() {
+		billData["amount"] = ubb.Amount
+	}
+	if ubb.Remark != "" {
+		billData["remark"] = ubb.Remark
+	}
+	if ubb.TypeID != 0 {
+		billData["bill_type_id"] = ubb.TypeID
+	}
+	if ubb.Income != "" {
+		income, _ := strconv.ParseBool(ubb.Income)
+		billData["income"] = income
+	}
+
+	bill, err := billservice.UpdateBill(ubb.BillID, user.ID, billData)
 	if err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusInternalServerError, "更新账单失败")
 	} else {
 		api.Success(c, "账单更新成功", bill)
@@ -135,19 +160,22 @@ type DeleteBillBody struct {
 
 func DeleteBill(c *gin.Context) {
 	dbb := &DeleteBillBody{}
-	err := c.ShouldBindJSON(&dbb)
+	err := c.ShouldBindJSON(dbb)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
 	err = billservice.DeleteBill(dbb.BillID, user.ID)
 	if err != nil {
-		api.Fail(c, http.StatusInternalServerError, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusInternalServerError, "删除账单失败")
 		return
 	}
 	api.Success(c, "删除账单成功", nil)

@@ -171,7 +171,7 @@ func TestUpdateBill(t *testing.T) {
 	type args struct {
 		billID uint
 		userID uint
-		bill   *models.Bill
+		data   map[string]interface{}
 	}
 	tests := []struct {
 		name    string
@@ -183,10 +183,10 @@ func TestUpdateBill(t *testing.T) {
 			args{
 				billID,
 				userID,
-				&models.Bill{
-					Amount: decimal.NewFromFloat(2.00),
-					Name:   "After update bill name",
-					Remark: "After update bill remark",
+				map[string]interface{}{
+					"amount": decimal.NewFromFloat(2.00),
+					"name":   "After update bill name",
+					"remark": "After update bill remark",
 				},
 			},
 			false,
@@ -194,8 +194,9 @@ func TestUpdateBill(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := UpdateBill(tt.args.billID, tt.args.userID, tt.args.bill); (err != nil) != tt.wantErr {
+			if bill, err := UpdateBill(tt.args.billID, tt.args.userID, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateBill() error = %v, wantErr %v", err, tt.wantErr)
+				assert.NotEmpty(t, bill, "Update bill service not pass")
 			}
 		})
 	}

@@ -9,11 +9,13 @@ import (
 	"github.com/Samoy/bill_backend/service/userservice"
 	"github.com/Samoy/bill_backend/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/unknwon/com"
 	_ "golang.org/x/image/bmp"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
@@ -30,17 +32,25 @@ func AddBillType(c *gin.Context) {
 		return
 	}
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
-	handleImageForm(c, func(imagePath string) {
+	file, img, err := c.Request.FormFile("image")
+	if err != nil {
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "无效的image参数")
+		return
+	}
+	handleImageForm(c, file, img, func(imagePath string) {
 		billType := models.BillType{
 			Name:  billTypeName,
 			Owner: user.ID,
-			Image: imageSavePath,
+			Image: imagePath,
 		}
 		err := billtypeservice.AddBillType(&billType)
 		if err != nil {
+			logrus.Error(err)
 			api.Fail(c, http.StatusInternalServerError, "添加账单类型失败")
 		} else {
 			api.Success(c, "账单类型添加成功", billType)
@@ -56,6 +66,7 @@ func GetBillType(c *gin.Context) {
 	}
 	billType, err := billtypeservice.GetBillType(uint(com.StrTo(BillTypeID).MustUint8()))
 	if err != nil {
+		logrus.Error(err)
 		api.Fail(c, http.StatusInternalServerError, "未找到该账单类型")
 	} else {
 		api.Success(c, "获取账单类型成功", billType)
@@ -71,29 +82,36 @@ func UpdateBillType(c *gin.Context) {
 	BillTypeID := c.Request.FormValue("bill_type_id")
 	if len(BillTypeID) == 0 {
 		api.Fail(c, http.StatusBadRequest, "bill_type_id不能为空")
+		return
 	}
 	_, err = billtypeservice.GetBillType(uint(com.StrTo(BillTypeID).MustUint8()))
 	if err != nil {
+		logrus.Error(err)
 		api.Fail(c, http.StatusInternalServerError, "未获取到该账单类型")
-	}
-	billTypeName := c.Request.FormValue("name")
-	if len(billTypeName) == 0 {
-		api.Fail(c, http.StatusBadRequest, "账单类型名称不能为空")
 		return
 	}
-	handleImageForm(c, func(imagePath string) {
-		billType := models.BillType{
-			Name:  billTypeName,
-			Owner: user.ID,
-			Image: imagePath,
-		}
-		err := billtypeservice.UpdateBillType(uint(com.StrTo(BillTypeID).MustUint8()), user.ID, &billType)
-		if err != nil {
-			api.Fail(c, http.StatusInternalServerError, "账单类型修改失败")
-		} else {
-			api.Success(c, "账单类型更新成功", billType)
-		}
-	})
+	billTypeName := c.Request.FormValue("name")
+	file, img, err := c.Request.FormFile("image")
+	if (file != nil && img != nil) || len(billTypeName) != 0 {
+		handleImageForm(c, file, img, func(imagePath string) {
+			billTypeData := make(map[string]interface{})
+			if billTypeName != "" {
+				billTypeData["name"] = billTypeName
+			}
+			if imagePath != "" {
+				billTypeData["image"] = imagePath
+			}
+			billType, err := billtypeservice.UpdateBillType(uint(com.StrTo(BillTypeID).MustUint8()), user.ID, billTypeData)
+			if err != nil {
+				logrus.Error(err)
+				api.Fail(c, http.StatusInternalServerError, "账单类型修改失败")
+			} else {
+				api.Success(c, "账单类型更新成功", billType)
+			}
+		})
+	} else {
+		api.Fail(c, http.StatusBadRequest, "缺少参数")
+	}
 }
 
 func GetBillTypeList(c *gin.Context) {
@@ -118,26 +136,28 @@ type DeleteBillTypeForm struct {
 func DeleteBillType(c *gin.Context) {
 	deleteBillTypeForm := &DeleteBillTypeForm{}
 	if err := c.ShouldBindJSON(deleteBillTypeForm); err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
-		api.Fail(c, http.StatusUnauthorized, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
 	err = billtypeservice.DeleteBillType(deleteBillTypeForm.BillTypeID, user.ID)
 	if err != nil {
-		api.Fail(c, http.StatusInternalServerError, err.Error())
+		logrus.Error(err.Error())
+		api.Fail(c, http.StatusInternalServerError, "账单类型删除失败")
 		return
 	}
 	api.Success(c, "账单类型删除成功", nil)
 }
 
-func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
-	file, img, err := c.Request.FormFile("image")
-	if err != nil {
-		api.Fail(c, http.StatusBadRequest, "无效的image参数")
+func handleImageForm(c *gin.Context, file multipart.File, img *multipart.FileHeader, resultHandle func(imagePath string)) {
+	if file == nil || img == nil {
+		resultHandle("")
 		return
 	}
 	if !utils.CheckImageSize(file, 100*1024) {
@@ -148,13 +168,15 @@ func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
 		api.Fail(c, http.StatusBadRequest, "图片格式只能为png,bmp,jpg和jpeg")
 		return
 	}
-	_, err = file.Seek(0, 0)
+	_, err := file.Seek(0, 0)
 	if err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusInternalServerError, "图片上传失败")
 		return
 	}
 	im, _, err := image.DecodeConfig(file)
 	if err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusInternalServerError, "图片解析失败")
 		return
 	}
@@ -163,11 +185,13 @@ func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
 		return
 	}
 	if err := utils.IsNotExistMkDir(imageSavePath); err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
 		return
 	}
 	tempParentPath := fmt.Sprintf("%stemp/", imageSavePath)
 	if err := utils.IsNotExistMkDir(tempParentPath); err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
 		return
 	}
@@ -175,16 +199,18 @@ func handleImageForm(c *gin.Context, successHandle func(imagePath string)) {
 	ext := path.Ext(img.Filename)
 	tempPath := fmt.Sprintf("%s%d%s", tempParentPath, timestamp, ext)
 	if err := c.SaveUploadedFile(img, tempPath); err != nil {
+		logrus.Error(err.Error())
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
 		return
 	}
 	filePath := fmt.Sprintf("%s%d%s", imageSavePath, timestamp, ext)
 	if utils.CheckExist(tempPath) {
 		if err := c.SaveUploadedFile(img, filePath); err != nil {
+			logrus.Error(err.Error())
 			api.Fail(c, http.StatusBadRequest, "图片上传失败")
 			return
 		}
-		successHandle(filePath)
+		resultHandle(filePath)
 		_ = os.Remove(tempPath)
 	} else {
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")

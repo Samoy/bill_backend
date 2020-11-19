@@ -19,8 +19,10 @@ func GetBill(billID uint, userID uint) (models.Bill, error) {
 	return bill, err
 }
 
-func UpdateBill(billID, userID uint, bill *models.Bill) error {
-	return dao.DB.Model(&bill).Where("id = ? and user_id = ?", billID, userID).Updates(&bill).Error
+func UpdateBill(billID, userID uint, data map[string]interface{}) (models.Bill, error) {
+	var bill models.Bill
+	err := dao.DB.Model(&bill).Where("id = ? and user_id = ?", billID, userID).Updates(data).First(&bill).Error
+	return bill, err
 }
 
 func GetBillList(
@@ -40,19 +42,22 @@ func GetBillList(
 		incomeValue bool
 		ascValue    string
 	)
-	if income == "1" {
-		incomeValue = true
-	} else {
-		incomeValue = false
+	db := dao.DB.Where("user_id = ?", userID)
+	if income != "" {
+		if income == "0" {
+			incomeValue = false
+		} else {
+			incomeValue = true
+		}
+		db = db.Where("income = ?", incomeValue)
 	}
-	db := dao.DB.Where("income = ? and user_id = ?", incomeValue, userID)
 	if startTime != "" && endTime != "" {
 		st, _ = time.Parse(timeFormat, startTime)
 		et, _ = time.Parse(timeFormat, endTime)
-		db.Where("updated_at < ? and updated_at > ?", et, st)
+		db = db.Where("updated_at < ? and updated_at > ?", et, st)
 	}
 	if category != 0 {
-		db.Where("bill_type_id = ?", category)
+		db = db.Where("bill_type_id = ?", category)
 	}
 	if sortKey != "" {
 		if asc == "1" {
@@ -60,10 +65,10 @@ func GetBillList(
 		} else {
 			ascValue = "desc"
 		}
-		db.Order(fmt.Sprintf("%s %s", sortKey, ascValue))
+		db = db.Order(fmt.Sprintf("%s %s", sortKey, ascValue))
 	}
 	if page > 0 && pageSize > 0 {
-		db.Limit(pageSize).Offset((page - 1) * pageSize)
+		db = db.Limit(pageSize).Offset((page - 1) * pageSize)
 	}
 	err := db.Find(&billList).Error
 	return billList, err

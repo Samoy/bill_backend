@@ -13,7 +13,11 @@ import (
 func InitRouter(mode string) *gin.Engine {
 	binding.Validator = new(validator.DefaultValidator)
 	gin.SetMode(mode)
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
+	if mode == "debug" {
+		r.Use(gin.Logger())
+	}
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})

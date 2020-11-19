@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Samoy/bill_backend/config"
 	"github.com/Samoy/bill_backend/dao"
+	"github.com/Samoy/bill_backend/logger"
 	"github.com/Samoy/bill_backend/router"
 	"github.com/Samoy/bill_backend/utils"
 	"log"
@@ -16,6 +17,7 @@ import (
 
 func init() {
 	config.Setup("./app.ini")
+	logger.Setup(config.AppConf.RunMode)
 	utils.SetupJwt(config.AppConf.JwtSecret)
 	dao.Setup(config.DatabaseConf.Type,
 		config.DatabaseConf.User,

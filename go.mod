@@ -8,9 +8,11 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/shopspring/decimal v1.2.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/unknwon/com v1.0.1
 	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
+	golang.org/x/sys v0.0.0-20201112073958-5cba982894dd // indirect
 	gopkg.in/ini.v1 v1.62.0
 )
