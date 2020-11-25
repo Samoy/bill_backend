@@ -47,7 +47,7 @@ type RegisterBody struct {
 	Username  string `json:"username" binding:"required,min=6,max=16"`
 	Password  string `json:"password" binding:"required,min=6,max=16"`
 	Telephone string `json:"telephone" binding:"required,telephone"`
-	Nickname  string `json:"nickname" binding:"omitempty,min=6,max=10"`
+	Nickname  string `json:"nickname" binding:"omitempty,min=2,max=10"`
 }
 
 // Register 注册
