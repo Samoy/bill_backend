@@ -124,7 +124,7 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
-func Test_existUser(t *testing.T) {
+func TestExistUser(t *testing.T) {
 	type args struct {
 		username  string
 		telephone string

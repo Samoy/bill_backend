@@ -80,6 +80,10 @@ func TestInitRouter(t *testing.T) {
 			assert.Equal(t, http.StatusOK, code, "login test not pass")
 			assert.NotNil(t, *data, "Login test not pass")
 			token = (*data)["data"].(map[string]interface{})["token"].(string)
+			//测试获取用户信息
+			code, data = testNormalApi(tt.args.mode, "/api/v1/user/profile", http.MethodGet, nil)
+			assert.Equal(t, http.StatusOK, code, "user profile test not pass")
+			assert.NotNil(t, *data, "user profile not pass")
 			//测试添加账单类型
 			err, code, data := testFileApi(
 				tt.args.mode,

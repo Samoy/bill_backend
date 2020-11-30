@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/Samoy/bill_backend/middleware/jwt"
 	"github.com/Samoy/bill_backend/models"
 	"github.com/Samoy/bill_backend/router/api"
 	"github.com/Samoy/bill_backend/service/userservice"
@@ -70,4 +71,14 @@ func Register(c *gin.Context) {
 		return
 	}
 	api.Success(c, "注册成功", u)
+}
+
+// GetProfile 获取用户信息
+func GetProfile(c *gin.Context) {
+	user, err := userservice.GetUser(jwt.Username)
+	if err != nil {
+		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
+		return
+	}
+	api.Success(c, "获取用户信息成功", user)
 }
