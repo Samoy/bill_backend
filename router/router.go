@@ -28,12 +28,13 @@ func InitRouter(mode string) *gin.Engine {
 		apiV1.POST("/user/register", v1.Register)
 		//登录
 		apiV1.POST("/user/login", v1.Login)
-		//获取用户信心
-		apiV1.GET("/user/profile", v1.GetProfile)
 
 		//以下路由需要token验证
 		apiV1.Use(jwt.Jwt())
 		{
+			//获取用户信息
+			apiV1.GET("/user/profile", v1.GetProfile)
+
 			//账单类型
 			apiV1.POST("/bill_type", v1.AddBillType)
 			apiV1.GET("/bill_type", v1.GetBillType)
