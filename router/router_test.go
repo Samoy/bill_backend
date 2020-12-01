@@ -132,6 +132,7 @@ func TestInitRouter(t *testing.T) {
 				Name:   "Test Add Bill Router",
 				Amount: decimal.NewFromFloat(1.00),
 				Income: false,
+				Date:   "2020-12-01",
 				TypeID: billTypeID,
 				Remark: "This is a  add bill router test",
 			})
@@ -145,6 +146,7 @@ func TestInitRouter(t *testing.T) {
 				BillID: billID,
 				Name:   "Test Update Bill Router",
 				Amount: decimal.NewFromFloat(2.00),
+				Date:   "2020-11-30",
 				Income: "0",
 				TypeID: billTypeID,
 				Remark: "This is a  update bill router test",

@@ -32,6 +32,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+	"time"
 )
 
 var userID uint = 10
@@ -71,6 +72,7 @@ func TestAddBill(t *testing.T) {
 				&models.Bill{
 					Name:       "Test Bill",
 					Amount:     decimal.NewFromFloat(1.00),
+					Date:       time.Now(),
 					BillTypeID: billTypeID,
 					Remark:     "This is a remark that test adding bill ",
 					UserID:     userID,

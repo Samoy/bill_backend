@@ -12,15 +12,19 @@ import (
 	"github.com/unknwon/com"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type BillBody struct {
 	Name   string          `json:"name" binding:"required"`
 	Amount decimal.Decimal `json:"amount" binding:"required,gt>0"`
 	Remark string          `json:"remark" binding:"omitempty,max=100"`
+	Date   string          `json:"date" binding:"required,datetime"`
 	TypeID uint            `json:"type_id" binding:"required"`
 	Income bool            `json:"income" binding:"required"`
 }
+
+var timeFormat = "2006-01-02"
 
 func AddBill(c *gin.Context) {
 	b := &BillBody{}
@@ -35,10 +39,12 @@ func AddBill(c *gin.Context) {
 		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
+	date, _ := time.Parse(timeFormat, b.Date)
 	l := &models.Bill{
 		Name:       b.Name,
 		Amount:     b.Amount,
 		Remark:     b.Remark,
+		Date:       date,
 		UserID:     user.ID,
 		BillTypeID: b.TypeID,
 		Income:     b.Income,
@@ -79,6 +85,7 @@ type UpdateBillBody struct {
 	Name   string          `json:"name"`
 	Amount decimal.Decimal `json:"amount" binding:"omitempty,gt>0"`
 	Remark string          `json:"remark" binding:"omitempty,max=100"`
+	Date   string          `json:"date" binding:"omitempty,datetime"`
 	TypeID uint            `json:"type_id"`
 	Income string          `json:"income"`
 }
@@ -113,6 +120,10 @@ func UpdateBill(c *gin.Context) {
 	if ubb.Income != "" {
 		income, _ := strconv.ParseBool(ubb.Income)
 		billData["income"] = income
+	}
+	if ubb.Date != "" {
+		date, _ := time.Parse(timeFormat, ubb.Date)
+		billData["date"] = date
 	}
 
 	bill, err := billservice.UpdateBill(ubb.BillID, user.ID, billData)

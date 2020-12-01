@@ -1,6 +1,9 @@
 package models
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/shopspring/decimal"
+	"time"
+)
 
 // Bill 账单Model
 type Bill struct {
@@ -9,6 +12,7 @@ type Bill struct {
 	Amount     decimal.Decimal `json:"amount" gorm:"notnull;type:decimal"` //账单金额
 	BillTypeID uint            `json:"bill_type_id" gorm:"not null"`       //账单类型ID，外键
 	Type       BillType        `json:"-" gorm:"foreignKey:BillTypeID"`     //账单类型
+	Date       time.Time       `json:"date" gorm:"not null"`               //账单日期
 	Remark     string          `json:"remark"`                             //账单备注
 	UserID     uint            `json:"user_id" gorm:"not null"`            //用户ID
 	Owner      User            `json:"-" gorm:"foreignKey:UserID"`         //用户
