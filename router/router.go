@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/Samoy/bill_backend/config"
 	"github.com/Samoy/bill_backend/middleware/jwt"
 	v1 "github.com/Samoy/bill_backend/router/api/v1"
 	"github.com/Samoy/bill_backend/validator"
@@ -21,6 +22,8 @@ func InitRouter(mode string) *gin.Engine {
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
+	print(config.AppConf.ImageSavePath)
+	r.StaticFS("/images/", http.Dir(config.AppConf.ImageSavePath))
 
 	apiV1 := r.Group("/api/v1")
 	{

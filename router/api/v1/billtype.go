@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"github.com/Samoy/bill_backend/config"
 	"github.com/Samoy/bill_backend/middleware/jwt"
 	"github.com/Samoy/bill_backend/models"
 	"github.com/Samoy/bill_backend/router/api"
@@ -21,8 +22,6 @@ import (
 	"path"
 	"time"
 )
-
-var imageSavePath = utils.GetProjectRoot() + "/upload/images/"
 
 func AddBillType(c *gin.Context) {
 	user, err := userservice.GetUser(jwt.Username)
@@ -184,12 +183,12 @@ func handleImageForm(c *gin.Context, file multipart.File, img *multipart.FileHea
 		api.Fail(c, http.StatusBadRequest, "图片尺寸应该为128*128以下")
 		return
 	}
-	if err := utils.IsNotExistMkDir(imageSavePath); err != nil {
+	if err := utils.IsNotExistMkDir(config.AppConf.ImageSavePath); err != nil {
 		logrus.Error(err.Error())
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
 		return
 	}
-	tempParentPath := fmt.Sprintf("%stemp/", imageSavePath)
+	tempParentPath := fmt.Sprintf("%stemp/", config.AppConf.ImageSavePath)
 	if err := utils.IsNotExistMkDir(tempParentPath); err != nil {
 		logrus.Error(err.Error())
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
@@ -203,14 +202,14 @@ func handleImageForm(c *gin.Context, file multipart.File, img *multipart.FileHea
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")
 		return
 	}
-	filePath := fmt.Sprintf("%s%d%s", imageSavePath, timestamp, ext)
+	filePath := fmt.Sprintf("%s%d%s", config.AppConf.ImageSavePath, timestamp, ext)
 	if utils.CheckExist(tempPath) {
 		if err := c.SaveUploadedFile(img, filePath); err != nil {
 			logrus.Error(err.Error())
 			api.Fail(c, http.StatusBadRequest, "图片上传失败")
 			return
 		}
-		resultHandle(filePath)
+		resultHandle(fmt.Sprintf("/images/%d%s", timestamp, ext))
 		_ = os.Remove(tempPath)
 	} else {
 		api.Fail(c, http.StatusBadRequest, "图片上传失败")

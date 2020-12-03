@@ -23,6 +23,7 @@ var (
 	token      string
 	billTypeID uint
 	billID     uint
+	imageUrl   string
 )
 
 func setup() {
@@ -99,6 +100,7 @@ func TestInitRouter(t *testing.T) {
 			assert.Equal(t, http.StatusOK, code, "Add bill type test not pass")
 			assert.NotEmpty(t, *data, "Add bill type test not pass")
 			billTypeID = uint((*data)["data"].(map[string]interface{})["id"].(float64))
+			imageUrl = (*data)["data"].(map[string]interface{})["image"].(string)
 			//测试获取账单类型
 			code, data = testNormalApi(tt.args.mode, fmt.Sprintf("/api/v1/bill_type?bill_type_id=%d", billTypeID), http.MethodGet, nil)
 			assert.Equal(t, http.StatusOK, code, "Get bill type test not pass")
@@ -167,6 +169,9 @@ func TestInitRouter(t *testing.T) {
 				BillID: billID,
 			})
 			assert.Equal(t, http.StatusOK, code, "Delete bill test not pass")
+			//测试图片服务
+			code, data = testNormalApi(tt.args.mode, imageUrl, http.MethodGet, nil)
+			assert.Equal(t, http.StatusOK, code, "image server test not pass")
 		})
 	}
 }

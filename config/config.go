@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Samoy/bill_backend/utils"
 	"gopkg.in/ini.v1"
 	"log"
 	"time"
@@ -8,8 +9,9 @@ import (
 
 // App App配置结构体
 type App struct {
-	RunMode   string
-	JwtSecret string
+	RunMode       string
+	JwtSecret     string
+	ImageSavePath string
 }
 
 // AppConf app配置
@@ -45,6 +47,9 @@ func Setup(path string) {
 		log.Fatalf("Failed to parse app.ini:%v", err)
 	}
 	err = Cfg.Section("app").MapTo(AppConf)
+
+	AppConf.ImageSavePath = utils.GetProjectRoot() + AppConf.ImageSavePath
+
 	if err != nil {
 		log.Fatalf("Section 'app' mapping err: %v", err)
 	}
