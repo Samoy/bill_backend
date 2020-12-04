@@ -22,7 +22,6 @@ func InitRouter(mode string) *gin.Engine {
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
-	print(config.AppConf.ImageSavePath)
 	r.StaticFS("/images/", http.Dir(config.AppConf.ImageSavePath))
 
 	apiV1 := r.Group("/api/v1")
