@@ -26,6 +26,9 @@ func init() {
 		config.DatabaseConf.Name,
 		config.DatabaseConf.TablePrefix,
 	)
+	if config.AppConf.RunMode == "debug" {
+		dao.DB.LogMode(true)
+	}
 }
 
 func main() {

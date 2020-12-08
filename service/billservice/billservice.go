@@ -10,7 +10,7 @@ import (
 var timeFormat = "2006-01-02 15:04:05"
 
 func AddBill(bill *models.Bill) error {
-	return dao.DB.Create(&bill).Error
+	return dao.DB.Preload("BillType").Create(&bill).Error
 }
 
 func GetBill(billID uint, userID uint) (models.Bill, error) {
@@ -70,7 +70,7 @@ func GetBillList(
 	if page > 0 && pageSize > 0 {
 		db = db.Limit(pageSize).Offset((page - 1) * pageSize)
 	}
-	err := db.Find(&billList).Error
+	err := db.Preload("BillType").Find(&billList).Error
 	return billList, err
 }
 

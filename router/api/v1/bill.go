@@ -40,6 +40,7 @@ func AddBill(c *gin.Context) {
 		return
 	}
 	date, _ := time.Parse(timeFormat, b.Date)
+	//FIXME:账单类型没有更新，一般用不到，但是确实存在问题。
 	l := &models.Bill{
 		Name:       b.Name,
 		Amount:     b.Amount,

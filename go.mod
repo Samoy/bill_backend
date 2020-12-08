@@ -15,4 +15,5 @@ require (
 	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
 	golang.org/x/sys v0.0.0-20201112073958-5cba982894dd // indirect
 	gopkg.in/ini.v1 v1.62.0
+	gorm.io/gorm v1.20.8 // indirect
 )

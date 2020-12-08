@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // BaseModel BaseModel
 type BaseModel struct {

@@ -26,10 +26,7 @@ func Setup(dbType, dbUser, dbPassword, dbHost, dbName, dbTablePrefix string) {
 	DB.SingularTable(true)
 	DB.DB().SetMaxIdleConns(10)
 	DB.DB().SetMaxOpenConns(100)
-	DB.AutoMigrate(&models.BillType{}, &models.Bill{
-		Type:  models.BillType{},
-		Owner: models.User{},
-	}, &models.User{})
+	DB.AutoMigrate(&models.BillType{}, &models.Bill{}, &models.User{})
 }
 
 func CloseDB() error {
