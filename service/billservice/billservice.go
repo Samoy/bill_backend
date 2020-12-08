@@ -54,7 +54,7 @@ func GetBillList(
 	if startTime != "" && endTime != "" {
 		st, _ = time.Parse(timeFormat, startTime)
 		et, _ = time.Parse(timeFormat, endTime)
-		db = db.Where("updated_at < ? and updated_at > ?", et, st)
+		db = db.Where("date < ? and date > ?", et, st)
 	}
 	if category != 0 {
 		db = db.Where("bill_type_id = ?", category)
