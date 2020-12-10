@@ -159,7 +159,7 @@ func TestInitRouter(t *testing.T) {
 			code, data = testNormalApi(tt.args.mode,
 				fmt.Sprintf(
 					"/api/v1/bill_list?start_time=%s&end_time=%s&page=%d&page_size=%d&type=%d&income=%d&sort_key=%s&asc=%d",
-					"2006-01-01 00:00:00", "2030-12-31 23:59:59", 1, 10, billTypeID, 0, "amount", 0,
+					"2006-01-01", "2030-12-31", 1, 10, billTypeID, 0, "amount", 0,
 				),
 				http.MethodGet, nil)
 			assert.Equal(t, http.StatusOK, code, "Get bill list test not pass")

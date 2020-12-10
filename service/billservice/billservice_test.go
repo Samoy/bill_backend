@@ -145,8 +145,8 @@ func TestGetBillList(t *testing.T) {
 			"Get Bill List",
 			args{
 				userID,
-				"2019-01-10 00:00:00",
-				"2021-01-10 00:00:00",
+				"2019-01-10",
+				"2021-01-10",
 				0,
 				10,
 				billTypeID,
