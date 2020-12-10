@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-var timeFormat = "2006-01-02 15:04:05"
+var timeFormat = "2006-01-02"
 
 func AddBill(bill *models.Bill) error {
-	return dao.DB.Preload("BillType").Create(&bill).Error
+	return dao.DB.Create(&bill).Error
 }
 
 func GetBill(billID uint, userID uint) (models.Bill, error) {
@@ -54,7 +54,7 @@ func GetBillList(
 	if startTime != "" && endTime != "" {
 		st, _ = time.Parse(timeFormat, startTime)
 		et, _ = time.Parse(timeFormat, endTime)
-		db = db.Where("date < ? and date > ?", et, st)
+		db = db.Where("date <= ? and date >= ?", et, st)
 	}
 	if category != 0 {
 		db = db.Where("bill_type_id = ?", category)
