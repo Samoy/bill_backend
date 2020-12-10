@@ -148,7 +148,7 @@ func GetBillList(c *gin.Context) {
 	// 收入还是支出
 	income := c.DefaultQuery("income", "0")
 	// 排序(金额，时间远近)
-	sortKey := c.Query("sort_key")
+	sortKey := c.DefaultQuery("sort_key", "date")
 	asc := c.DefaultQuery("asc", "0")
 	user, err := userservice.GetUser(jwt.Username)
 	if err != nil {
