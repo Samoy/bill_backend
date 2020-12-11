@@ -15,7 +15,7 @@ func AddBill(bill *models.Bill) error {
 
 func GetBill(billID uint, userID uint) (models.Bill, error) {
 	var bill models.Bill
-	err := dao.DB.First(&bill, "id = ? and user_id = ?", billID, userID).Error
+	err := dao.DB.Preload("BillType").First(&bill, "id = ? and user_id = ?", billID, userID).Error
 	return bill, err
 }
 
