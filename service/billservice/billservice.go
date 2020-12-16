@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"github.com/Samoy/bill_backend/dao"
 	"github.com/Samoy/bill_backend/models"
+	"github.com/Samoy/bill_backend/utils"
+	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
-var timeFormat = "2006-01-02"
+var timeFormat = "2006-01-02 15:04:05"
 
 func AddBill(bill *models.Bill) error {
 	return dao.DB.Create(&bill).Error
@@ -72,6 +75,59 @@ func GetBillList(
 	}
 	err := db.Preload("BillType").Find(&billList).Error
 	return billList, err
+}
+
+func GetRecentBillList() ([]models.Bill, error) {
+	recentSt, recentEt := utils.GetRecentRange()
+	var billList []models.Bill
+	err := dao.DB.Preload("BillType").Where("date >= ? and date <= ?", recentSt, recentEt).Order("date desc").Find(&billList).Error
+	return billList, err
+}
+
+func GetBillOverview() (map[string]decimal.Decimal, error) {
+	todaySt, todayEt := utils.GetToday()
+	todayAmount, err := getBillAmount(todaySt, todayEt)
+	if err != nil {
+		return nil, err
+	}
+	weekSt, weekEt := utils.GetWeekRang()
+	weekAmount, err := getBillAmount(weekSt, weekEt)
+	if err != nil {
+		return nil, err
+	}
+	monthSt, monthEt := utils.GetMonthRange()
+	monthAmount, err := getBillAmount(monthSt, monthEt)
+	if err != nil {
+		return nil, err
+	}
+	annualSt, annualEt := utils.GetAnnualRange()
+	annualAmount, err := getBillAmount(annualSt, annualEt)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]decimal.Decimal{
+		"today_amount":  todayAmount,
+		"week_amount":   weekAmount,
+		"month_amount":  monthAmount,
+		"annual_amount": annualAmount,
+	}, nil
+}
+
+func getBillAmount(st, et time.Time) (decimal.Decimal, error) {
+	amount := 0.00
+	rows, err := dao.DB.Model(&models.Bill{}).Select("sum(amount) as total").Where("date >= ? and date <= ?", st, et).Rows()
+	if err != nil {
+		logrus.Error(err)
+		return decimal.NewFromFloat(0), err
+	}
+	if rows.Next() {
+		err := rows.Scan(&amount)
+		if err != nil {
+			logrus.Error(err)
+			return decimal.NewFromFloat(0), err
+		}
+	}
+	return decimal.NewFromFloat(amount), nil
 }
 
 func DeleteBill(billID, userID uint) (err error) {

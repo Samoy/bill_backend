@@ -48,7 +48,9 @@ func InitRouter(mode string) *gin.Engine {
 			apiV1.POST("/bill", v1.AddBill)
 			apiV1.GET("/bill", v1.GetBill)
 			apiV1.PUT("/bill", v1.UpdateBill)
-			apiV1.GET("/bill_list", v1.GetBillList)
+			apiV1.GET("/bill/list", v1.GetBillList)
+			apiV1.GET("/bill/overview", v1.GetBillOverview)
+			apiV1.GET("/bill/recent", v1.GetRecentBill)
 			apiV1.DELETE("/bill", v1.DeleteBill)
 		}
 	}

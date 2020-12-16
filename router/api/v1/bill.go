@@ -24,7 +24,7 @@ type BillBody struct {
 	Income bool            `json:"income" binding:"required"`
 }
 
-var timeFormat = "2006-01-02"
+var timeFormat = "2006-01-02 15:04:05"
 
 func AddBill(c *gin.Context) {
 	b := &BillBody{}
@@ -163,6 +163,24 @@ func GetBillList(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, "查询账单失败")
 	} else {
 		api.Success(c, "查询账单列表成功", billList)
+	}
+}
+
+func GetBillOverview(c *gin.Context) {
+	billOverview, err := billservice.GetBillOverview()
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, "查询账单概览失败")
+	} else {
+		api.Success(c, "查询账单概览成功", billOverview)
+	}
+}
+
+func GetRecentBill(c *gin.Context) {
+	billList, err := billservice.GetRecentBillList()
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, "查询最近7天账单失败")
+	} else {
+		api.Success(c, "查询最近7天账单成功", billList)
 	}
 }
 

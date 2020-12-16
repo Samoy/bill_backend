@@ -134,7 +134,7 @@ func TestInitRouter(t *testing.T) {
 				Name:   "Test Add Bill Router",
 				Amount: decimal.NewFromFloat(1.00),
 				Income: false,
-				Date:   "2020-12-01",
+				Date:   "2020-12-01 08:00:00",
 				TypeID: billTypeID,
 				Remark: "This is a  add bill router test",
 			})
@@ -148,7 +148,7 @@ func TestInitRouter(t *testing.T) {
 				BillID: billID,
 				Name:   "Test Update Bill Router",
 				Amount: decimal.NewFromFloat(2.00),
-				Date:   "2020-11-30",
+				Date:   "2020-11-30 08:00:00",
 				Income: "0",
 				TypeID: billTypeID,
 				Remark: "This is a  update bill router test",
@@ -158,12 +158,20 @@ func TestInitRouter(t *testing.T) {
 			//测试获取账单列表
 			code, data = testNormalApi(tt.args.mode,
 				fmt.Sprintf(
-					"/api/v1/bill_list?start_time=%s&end_time=%s&page=%d&page_size=%d&type=%d&income=%d&sort_key=%s&asc=%d",
-					"2006-01-01", "2030-12-31", 1, 10, billTypeID, 0, "amount", 0,
+					"/api/v1/bill/list?start_time=%s&end_time=%s&page=%d&page_size=%d&type=%d&income=%d&sort_key=%s&asc=%d",
+					"2006-01-01 08:00:00", "2030-12-31 23:59:59", 1, 10, billTypeID, 0, "amount", 0,
 				),
 				http.MethodGet, nil)
 			assert.Equal(t, http.StatusOK, code, "Get bill list test not pass")
 			assert.NotEmpty(t, *data, "Get bill list test not pass")
+			//测试账单概览
+			code, data = testNormalApi(tt.args.mode, "/api/v1/bill/overview", http.MethodGet, nil)
+			assert.Equal(t, http.StatusOK, code, "Get bill overview test not pass")
+			assert.NotEmpty(t, *data, "Get bill overview test not pass")
+			//测试最近账单列表
+			code, data = testNormalApi(tt.args.mode, "/api/v1/bill/recent", http.MethodGet, nil)
+			assert.Equal(t, http.StatusOK, code, "Get recent bill list test not pass")
+			assert.NotEmpty(t, *data, "Get recent bill list test not pass")
 			//测试删除账单
 			code, data = testNormalApi(tt.args.mode, "/api/v1/bill", http.MethodDelete, v1.DeleteBillBody{
 				BillID: billID,

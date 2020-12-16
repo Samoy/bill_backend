@@ -145,8 +145,8 @@ func TestGetBillList(t *testing.T) {
 			"Get Bill List",
 			args{
 				userID,
-				"2019-01-10",
-				"2021-01-10",
+				"2019-01-10 08:00:00",
+				"2021-01-10 23:59:59",
 				0,
 				10,
 				billTypeID,
@@ -200,6 +200,50 @@ func TestUpdateBill(t *testing.T) {
 				t.Errorf("UpdateBill() error = %v, wantErr %v", err, tt.wantErr)
 				assert.NotEmpty(t, bill, "Update bill service not pass")
 			}
+		})
+	}
+}
+
+func TestGetBillOverview(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+	}{
+		{
+			"Get Bill Overview",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetBillOverview()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetBillOverview() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			assert.NotNil(t, got, "Get Bill Overview test not pass")
+		})
+	}
+}
+
+func TestGetRecentBillList(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+	}{
+		{
+			"Recent Bill List",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetRecentBillList()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetRecentBillList() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			assert.NotEmpty(t, got, "Get Recent Bill List test not pass")
 		})
 	}
 }
