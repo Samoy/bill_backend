@@ -115,7 +115,12 @@ func GetBillOverview() (map[string]decimal.Decimal, error) {
 
 func getBillAmount(st, et time.Time) (decimal.Decimal, error) {
 	amount := 0.00
-	rows, err := dao.DB.Model(&models.Bill{}).Select("sum(amount) as total").Where("date >= ? and date <= ?", st, et).Rows()
+	count := 0
+	rows, err := dao.DB.Model(&models.Bill{}).Select("sum(amount)").Where("date >= ? and date <= ?", st, et).Count(&count).Rows()
+	if count <= 0 {
+		return decimal.NewFromFloat(0), nil
+	}
+
 	if err != nil {
 		logrus.Error(err)
 		return decimal.NewFromFloat(0), err

@@ -145,7 +145,7 @@ func TestGetBillList(t *testing.T) {
 			"Get Bill List",
 			args{
 				userID,
-				"2019-01-10 08:00:00",
+				"2019-01-10 00:00:00",
 				"2021-01-10 23:59:59",
 				0,
 				10,
@@ -243,7 +243,7 @@ func TestGetRecentBillList(t *testing.T) {
 				t.Errorf("GetRecentBillList() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			assert.NotEmpty(t, got, "Get Recent Bill List test not pass")
+			assert.NotNil(t, got, "Get Recent Bill List test not pass")
 		})
 	}
 }

@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 var (
@@ -134,7 +135,7 @@ func TestInitRouter(t *testing.T) {
 				Name:   "Test Add Bill Router",
 				Amount: decimal.NewFromFloat(1.00),
 				Income: false,
-				Date:   "2020-12-01 08:00:00",
+				Date:   time.Now().Format("2006-01-02 15:04:05"),
 				TypeID: billTypeID,
 				Remark: "This is a  add bill router test",
 			})
@@ -148,7 +149,7 @@ func TestInitRouter(t *testing.T) {
 				BillID: billID,
 				Name:   "Test Update Bill Router",
 				Amount: decimal.NewFromFloat(2.00),
-				Date:   "2020-11-30 08:00:00",
+				Date:   "2020-11-30 00:00:00",
 				Income: "0",
 				TypeID: billTypeID,
 				Remark: "This is a  update bill router test",
@@ -159,7 +160,7 @@ func TestInitRouter(t *testing.T) {
 			code, data = testNormalApi(tt.args.mode,
 				fmt.Sprintf(
 					"/api/v1/bill/list?start_time=%s&end_time=%s&page=%d&page_size=%d&type=%d&income=%d&sort_key=%s&asc=%d",
-					"2006-01-01 08:00:00", "2030-12-31 23:59:59", 1, 10, billTypeID, 0, "amount", 0,
+					"2006-01-01 00:00:00", "2030-12-31 23:59:59", 1, 10, billTypeID, 0, "amount", 0,
 				),
 				http.MethodGet, nil)
 			assert.Equal(t, http.StatusOK, code, "Get bill list test not pass")
