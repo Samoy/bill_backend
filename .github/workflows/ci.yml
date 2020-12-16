@@ -16,6 +16,7 @@ jobs:
     - name: Setup Database
       uses: mirromutth/mysql-action@v1.1
       with:
+        mysql version: '8.0'
         mysql database: ${{ secrets.MYSQL_DATABASE }}
         mysql root password: ${{ secrets.MYSQL_PASSWORD }}
 
