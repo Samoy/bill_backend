@@ -55,8 +55,8 @@ func GetBillList(
 		db = db.Where("income = ?", incomeValue)
 	}
 	if startTime != "" && endTime != "" {
-		st, _ = time.Parse(timeFormat, startTime)
-		et, _ = time.Parse(timeFormat, endTime)
+		st, _ = time.ParseInLocation(timeFormat, startTime, time.Local)
+		et, _ = time.ParseInLocation(timeFormat, endTime, time.Local)
 		db = db.Where("date <= ? and date >= ?", et, st)
 	}
 	if category != 0 {

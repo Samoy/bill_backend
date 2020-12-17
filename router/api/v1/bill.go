@@ -39,7 +39,7 @@ func AddBill(c *gin.Context) {
 		api.Fail(c, http.StatusUnauthorized, "未找到该用户")
 		return
 	}
-	date, _ := time.Parse(timeFormat, b.Date)
+	date, _ := time.ParseInLocation(timeFormat, b.Date, time.Local)
 	//FIXME:账单类型没有更新，一般用不到，但是确实存在问题。
 	l := &models.Bill{
 		Name:       b.Name,
@@ -123,8 +123,8 @@ func UpdateBill(c *gin.Context) {
 		billData["income"] = income
 	}
 	if ubb.Date != "" {
-		date, _ := time.Parse(timeFormat, ubb.Date)
-		billData["date"] = date
+		date, _ := time.ParseInLocation(timeFormat, ubb.Date, time.Local)
+		billData["date"] = date.Local()
 	}
 
 	bill, err := billservice.UpdateBill(ubb.BillID, user.ID, billData)
