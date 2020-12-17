@@ -28,7 +28,7 @@ func Login(c *gin.Context) {
 	user, err := userservice.Login(l.Username, l.Password)
 	if err != nil {
 		logrus.Error(err.Error())
-		api.Fail(c, http.StatusUnauthorized, "用户名或密码错误")
+		api.Fail(c, http.StatusForbidden, "用户名或密码错误")
 		return
 	}
 	token, err := utils.GenerateToken(l.Username, l.Password)
