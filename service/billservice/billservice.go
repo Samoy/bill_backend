@@ -24,7 +24,7 @@ func GetBill(billID uint, userID uint) (models.Bill, error) {
 
 func UpdateBill(billID, userID uint, data map[string]interface{}) (models.Bill, error) {
 	var bill models.Bill
-	err := dao.DB.Model(&bill).Where("id = ? and user_id = ?", billID, userID).Updates(data).First(&bill).Error
+	err := dao.DB.Model(&bill).Where("id = ? and user_id = ?", billID, userID).Updates(data).Preload("BillType").First(&bill).Error
 	return bill, err
 }
 
