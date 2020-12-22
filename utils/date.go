@@ -26,29 +26,27 @@ package utils
 
 import "time"
 
-var now = time.Now()
-
 func GetToday() (time.Time, time.Time) {
-	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local), now
+	return time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local), time.Now()
 }
 
 func GetWeekRang() (time.Time, time.Time) {
-	offset := int(time.Monday - now.Weekday())
+	offset := int(time.Monday - time.Now().Weekday())
 	if offset > 0 {
 		offset = -6
 	}
 
-	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset), now
+	return time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset), time.Now()
 }
 
 func GetMonthRange() (time.Time, time.Time) {
-	return time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local), now
+	return time.Date(time.Now().Year(), time.Now().Month(), 1, 0, 0, 0, 0, time.Local), time.Now()
 }
 
 func GetAnnualRange() (time.Time, time.Time) {
-	return time.Date(now.Year(), 1, 1, 0, 0, 0, 0, time.Local), now
+	return time.Date(time.Now().Year(), 1, 1, 0, 0, 0, 0, time.Local), time.Now()
 }
 
 func GetRecentRange() (time.Time, time.Time) {
-	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, -6), now
+	return time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, -6), time.Now()
 }
